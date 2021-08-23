@@ -42,15 +42,9 @@ go run cli/main.go
 ## Deploy to AWS Lambda
 
 - Amend the cron in `serverless.yml`
-- `cd clubTweeter`
-- Build with:
-
-```
-env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o ./../bin/clubTweeter lambda.go && \
-```
-
+- Run `make build`
 - Deploy with:
 
 ```
-sls deploy --stage=prod
+make deploy
 ```
