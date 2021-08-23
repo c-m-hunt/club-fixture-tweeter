@@ -17,4 +17,4 @@ functions:
   sosemtcc_fixtures:
     handler: bin/clubTweeter
     events:
-      - schedule: cron(0 9 25 * ? *)
+      - schedule: cron(0 9 * * ? *)

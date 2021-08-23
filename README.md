@@ -42,9 +42,4 @@ go run cli/main.go
 ## Deploy to AWS Lambda
 
 - Amend the cron in `serverless.yml`
-- Run `make build`
-- Deploy with:
-
-```
-make deploy
-```
+- Deploy with: `make deploy`
