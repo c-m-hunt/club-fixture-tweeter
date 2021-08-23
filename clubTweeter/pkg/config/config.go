@@ -10,9 +10,11 @@ import (
 var ConfigString []byte
 
 type Config struct {
-	ClubID      string            `json:"clubID"`
-	APIToken    string            `json:"apiToken"`
-	Teams       []string          `json:"teams"`
+	PlayCricket struct {
+		ClubID   string   `json:"clubID"`
+		APIToken string   `json:"apiToken"`
+		Teams    []string `json:"teams"`
+	} `json:"playCricket"`
 	TwitterMap  map[string]string `json:"twitterMap"`
 	TwitterAuth struct {
 		ConsumerKey    string `json:"consumerKey"`

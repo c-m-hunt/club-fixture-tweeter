@@ -17,7 +17,7 @@ type ClubMatches []pc.ClubMatch
 func PostTweet() {
 	cfg := config.NewConfig()
 
-	c := pc.NewClient(cfg.ClubID, cfg.APIToken)
+	c := pc.NewClient(cfg.PlayCricket.ClubID, cfg.PlayCricket.APIToken)
 	fixs := c.GetFixtures(pc.GetCurrentSeason())
 
 	fixToday := ClubMatches(fixs).FilterByDate(time.Now())
@@ -43,7 +43,10 @@ func PostTweet() {
 			date := time.Now().Add(time.Duration(int(time.Hour) * 24 * i))
 			fixFiltered := ClubMatches(fixs).FilterByDate(date)
 			if len(fixFiltered) > 0 {
-				fmt.Printf("%v fixtures on %v", len(fixFiltered), date.Format("02/01/2006"))
+				fmt.Printf("%v fixtures on %v\n", len(fixFiltered), date.Format("02/01/2006"))
+				tweetStr := twitter.GenerateFixtureTweet(fixFiltered, cfg)
+				fmt.Print(tweetStr)
+				fmt.Printf("%+v\n", fixFiltered)
 				i = 8
 			}
 		}

@@ -24,7 +24,7 @@ func GenerateFixtureTweet(ms []pc.ClubMatch, cfg config.Config) string {
 		panic(err)
 	}
 
-	for _, t := range cfg.Teams {
+	for _, t := range cfg.PlayCricket.Teams {
 		for _, f := range ms {
 			if t == f.Team.TeamID {
 				var fixLineBuff bytes.Buffer
