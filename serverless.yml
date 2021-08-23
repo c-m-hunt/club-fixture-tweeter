@@ -18,3 +18,4 @@ functions:
     handler: bin/clubTweeter
     events:
       - schedule: cron(0 9 * * ? *)
+    memorySize: 128

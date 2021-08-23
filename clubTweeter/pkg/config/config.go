@@ -9,6 +9,13 @@ import (
 //go:embed config.json
 var ConfigString []byte
 
+type TwitterAuth struct {
+	ConsumerKey    string `json:"consumerKey"`
+	ConsumerSecret string `json:"consumerSecret"`
+	AccessToken    string `json:"accessToken"`
+	AccessSecret   string `json:"accessSecret"`
+}
+
 type Config struct {
 	PlayCricket struct {
 		ClubID   string   `json:"clubID"`
@@ -16,13 +23,8 @@ type Config struct {
 		Teams    []string `json:"teams"`
 	} `json:"playCricket"`
 	TwitterMap  map[string]string `json:"twitterMap"`
-	TwitterAuth struct {
-		ConsumerKey    string `json:"consumerKey"`
-		ConsumerSecret string `json:"consumerSecret"`
-		AccessToken    string `json:"accessToken"`
-		AccessSecret   string `json:"accessSecret"`
-	} `json:"twitterAuth"`
-	Templates struct {
+	TwitterAuth `json:"twitterAuth"`
+	Templates   struct {
 		Fixtures    string `json:"fixtures"`
 		FixtureLine string `json:"fixtureLine"`
 	} `json:"templates"`
