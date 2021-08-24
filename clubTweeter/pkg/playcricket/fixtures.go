@@ -136,15 +136,12 @@ func (cms ClubMatches) FilterByDate(d time.Time, teams []string) ClubMatches {
 	return fixFiltered
 }
 
-func (cms *ClubMatches) PopulateTwitter(twitterMap map[string]string) {
-	cmsOut := ClubMatches{}
-	for _, cm := range *cms {
+func (cms ClubMatches) PopulateTwitter(twitterMap map[string]string) {
+	for i, cm := range cms {
 		if val, ok := twitterMap[cm.Opposition.ClubID]; ok {
-			cm.Opposition.ClubTwitter = fmt.Sprintf("@%v", val)
+			cms[i].Opposition.ClubTwitter = fmt.Sprintf("@%v", val)
 		}
-		cmsOut = append(cmsOut, cm)
 	}
-	*cms = cmsOut
 }
 
 func contains(s []string, e string) bool {
