@@ -9,63 +9,14 @@ import (
 	"time"
 )
 
-func (c Client) GetFixtures(season string) []ClubMatch {
-	url := fmt.Sprintf("http://play-cricket.com/api/v2/matches.json?site_id=%v&season=%v&api_token=%v", c.SiteID, season, c.APIToken)
-
-	spaceClient := http.Client{
-		Timeout: time.Second * 2, // Timeout after 2 seconds
-	}
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	res, getErr := spaceClient.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
-
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
-
-	matches := MatchesResponse{}
-	jsonErr := json.Unmarshal(body, &matches)
-	if jsonErr != nil {
-		log.Fatal(jsonErr)
-	}
-
-	cms := []ClubMatch{}
-	for _, m := range matches.Matches {
-		cm := ClubMatch{Match: m}
-		ht := Team{m.HomeClubID, m.HomeClubName, m.HomeTeamID, m.HomeTeamName}
-		at := Team{m.AwayClubID, m.AwayClubName, m.AwayTeamID, m.AwayTeamName}
-		if m.HomeClubID == c.SiteID {
-			cm.Team = ht
-			cm.Opposition = at
-			cm.Venue = "home"
-		} else {
-			cm.Team = at
-			cm.Opposition = ht
-			cm.Venue = "away"
-		}
-		cms = append(cms, cm)
-	}
-
-	return cms
-}
+type ClubMatches []ClubMatch
 
 type Team struct {
-	ClubID   string
-	ClubName string
-	TeamID   string
-	TeamName string
+	ClubID      string
+	ClubName    string
+	ClubTwitter string
+	TeamID      string
+	TeamName    string
 }
 
 type ClubMatch struct {
@@ -118,4 +69,89 @@ type Match struct {
 
 type MatchesResponse struct {
 	Matches []Match `json:"matches"`
+}
+
+func (c Client) GetFixtures(season string) []ClubMatch {
+	url := fmt.Sprintf("http://play-cricket.com/api/v2/matches.json?site_id=%v&season=%v&api_token=%v", c.SiteID, season, c.APIToken)
+
+	spaceClient := http.Client{
+		Timeout: time.Second * 2, // Timeout after 2 seconds
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	matches := MatchesResponse{}
+	jsonErr := json.Unmarshal(body, &matches)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+
+	cms := []ClubMatch{}
+	for _, m := range matches.Matches {
+		cm := ClubMatch{Match: m}
+		ht := Team{ClubID: m.HomeClubID, ClubName: m.HomeClubName, TeamID: m.HomeTeamID, TeamName: m.HomeTeamName}
+		at := Team{ClubID: m.AwayClubID, ClubName: m.AwayClubName, TeamID: m.AwayTeamID, TeamName: m.AwayTeamName}
+		if m.HomeClubID == c.SiteID {
+			cm.Team = ht
+			cm.Opposition = at
+			cm.Venue = "home"
+		} else {
+			cm.Team = at
+			cm.Opposition = ht
+			cm.Venue = "away"
+		}
+		cms = append(cms, cm)
+	}
+
+	return cms
+}
+
+func (cms ClubMatches) FilterByDate(d time.Time, teams []string) ClubMatches {
+	fixFiltered := []ClubMatch{}
+	date := d.Format("02/01/2006")
+
+	for _, f := range cms {
+		if f.Match.MatchDate == date && contains(teams, f.Team.TeamID) {
+			fixFiltered = append(fixFiltered, f)
+		}
+	}
+	fmt.Printf("Filtered from %v fixtures to %v for date %v\n", len(cms), len(fixFiltered), date)
+	return fixFiltered
+}
+
+func (cms *ClubMatches) PopulateTwitter(twitterMap map[string]string) {
+	cmsOut := ClubMatches{}
+	for _, cm := range *cms {
+		if val, ok := twitterMap[cm.Opposition.ClubID]; ok {
+			cm.Opposition.ClubTwitter = fmt.Sprintf("@%v", val)
+		}
+		cmsOut = append(cmsOut, cm)
+	}
+	*cms = cmsOut
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

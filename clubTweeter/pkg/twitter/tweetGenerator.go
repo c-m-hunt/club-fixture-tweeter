@@ -28,9 +28,6 @@ func GenerateFixtureTweet(ms []pc.ClubMatch, cfg config.Config) string {
 		for _, f := range ms {
 			if t == f.Team.TeamID {
 				var fixLineBuff bytes.Buffer
-				if val, ok := cfg.TwitterMap[f.Opposition.ClubID]; ok {
-					f.Opposition.ClubName = fmt.Sprintf("@%v", val)
-				}
 				err = fixTemplate.Execute(&fixLineBuff, f)
 				if err != nil {
 					panic(err)

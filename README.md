@@ -12,23 +12,27 @@ Place in `clubTweeter/pkg/config/config.json`
 
 ```
 {
-  "clubID": "1234",
-  "apiToken": "abc123",
-  "teams": [
-    "123",
-    "456",
-    "789"
-  ],
+  "playCricket": {
+    "clubID": "1234",
+    "apiToken": "abc123",
+    "teams": [
+      "123",
+      "456",
+      "789"
+    ]
+  }
   "twitterAuth": {
     "consumerKey": "xxx",
     "consumerSecret": "xxx",
     "accessToken": "xxx",
     "accessSecret": "xxx"
   },
-  "twitterMap": {},
+  "twitterMap": {
+    "1234": "ClubTwitterWithout@",
+  },
   "templates": {
     "fixtures": "Today's Fixtures:\n\n{{.Fixtures}}\n@@mysponsor",
-    "fixtureLine": "{{.Team.TeamName}} {{.Venue}} v {{.Opposition.ClubName}}"
+    "fixtureLine": "{{.Team.TeamName}} {{.Venue}} v {{if .Opposition.ClubTwitter}}{{.Opposition.ClubTwitter}}{{else}}{{.Opposition.ClubName}}{{end}}"
   }
 }
 ```
