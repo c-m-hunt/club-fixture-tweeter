@@ -22,10 +22,13 @@ func PostTweet() {
 		fixFiltered := pc.ClubMatches(fixs).FilterByDate(date, cfg.PlayCricket.Teams)
 		if len(fixFiltered) > 0 {
 			tweetStr := twitter.GenerateFixtureTweet(fixFiltered, cfg)
+			for _, fix := range fixFiltered {
+				fmt.Printf("%v - %v \n", fix.Opposition.ClubID, fix.Opposition.ClubName)
+			}
 			fmt.Printf("----------------------\n%v\n----------------------\n", tweetStr)
-			// if i == 0 {
-			// 	twitter.SendTweet(cfg.TwitterAuth, tweetStr)
-			// }
+			if i == 0 {
+				twitter.SendTweet(cfg.TwitterAuth, tweetStr)
+			}
 		}
 	}
 }
