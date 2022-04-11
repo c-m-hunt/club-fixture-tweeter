@@ -8,33 +8,32 @@
 
 ## Build your config
 
-Place in `clubTweeter/pkg/config/config.json`
+Place in `clubTweeter/pkg/config/config.yaml`
 
 ```
-{
-  "playCricket": {
-    "clubID": "1234",
-    "apiToken": "abc123",
-    "teams": [
-      "123",
-      "456",
-      "789"
-    ]
-  }
-  "twitterAuth": {
-    "consumerKey": "xxx",
-    "consumerSecret": "xxx",
-    "accessToken": "xxx",
-    "accessSecret": "xxx"
-  },
-  "twitterMap": {
-    "1234": "ClubTwitterWithout@",
-  },
-  "templates": {
-    "fixtures": "Today's Fixtures:\n\n{{.Fixtures}}\n@@mysponsor",
-    "fixtureLine": "{{.Team.TeamName}} {{.Venue}} v {{if .Opposition.ClubTwitter}}{{.Opposition.ClubTwitter}}{{else}}{{.Opposition.ClubName}}{{end}}"
-  }
-}
+---
+playCricket:
+  clubID: '1234'
+  apiToken: abc123
+  teams:
+  - '123'
+  - '456'
+  - '789'
+twitterAuth:
+  consumerKey: xxx
+  consumerSecret: xxx
+  accessToken: xxx
+  accessSecret: xxx
+twitterMap:
+  '1234': ClubTwitterWithout@
+templates:
+  fixtures: |-
+    Today's Fixtures:
+
+    {{.Fixtures}}
+    @@mysponsor
+  fixtureLine: "{{.Team.TeamName}} {{.Venue}} v {{if .Opposition.ClubTwitter}}{{.Opposition.ClubTwitter}}{{else}}{{.Opposition.ClubName}}{{end}}"
+
 ```
 
 ## Run locally

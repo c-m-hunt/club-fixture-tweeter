@@ -2,37 +2,38 @@ package config
 
 import (
 	_ "embed"
-	"encoding/json"
 	"log"
+
+	"gopkg.in/yaml.v2"
 )
 
-//go:embed config.json
+//go:embed config.yaml
 var ConfigString []byte
 
 type TwitterAuth struct {
-	ConsumerKey    string `json:"consumerKey"`
-	ConsumerSecret string `json:"consumerSecret"`
-	AccessToken    string `json:"accessToken"`
-	AccessSecret   string `json:"accessSecret"`
+	ConsumerKey    string `yaml:"consumerKey"`
+	ConsumerSecret string `yaml:"consumerSecret"`
+	AccessToken    string `yaml:"accessToken"`
+	AccessSecret   string `yaml:"accessSecret"`
 }
 
 type Config struct {
 	PlayCricket struct {
-		ClubID   string   `json:"clubID"`
-		APIToken string   `json:"apiToken"`
-		Teams    []string `json:"teams"`
-	} `json:"playCricket"`
-	TwitterMap  map[string]string `json:"twitterMap"`
-	TwitterAuth `json:"twitterAuth"`
+		ClubID   string   `yaml:"clubID"`
+		APIToken string   `yaml:"apiToken"`
+		Teams    []string `yaml:"teams"`
+	} `yaml:"playCricket"`
+	TwitterMap  map[string]string `yaml:"twitterMap"`
+	TwitterAuth `yaml:"twitterAuth"`
 	Templates   struct {
-		Fixtures    string `json:"fixtures"`
-		FixtureLine string `json:"fixtureLine"`
-	} `json:"templates"`
+		Fixtures    string `yaml:"fixtures"`
+		FixtureLine string `yaml:"fixtureLine"`
+	} `yaml:"templates"`
 }
 
 func NewConfig() Config {
 	cfg := Config{}
-	err := json.Unmarshal(ConfigString, &cfg)
+	err := yaml.Unmarshal(ConfigString, &cfg)
 	if err != nil {
 		log.Fatalf("There was a problem loading config, %v", err)
 	}
