@@ -10,7 +10,7 @@ import (
 	"github.com/c-m-hunt/club-tweeter/pkg/twitter"
 )
 
-func PostTweet() {
+func RunFixtureTweet() {
 	cfg := config.NewConfig()
 
 	c := pc.NewClient(cfg.PlayCricket.ClubID, cfg.PlayCricket.APIToken)

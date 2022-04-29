@@ -5,6 +5,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -12,6 +13,7 @@ import (
 )
 
 type Response events.APIGatewayProxyResponse
+
 
 func Handler(ctx context.Context) (Response, error) {
 	var buf bytes.Buffer
@@ -24,7 +26,7 @@ func Handler(ctx context.Context) (Response, error) {
 	}
 	json.HTMLEscape(&buf, body)
 
-	app.PostTweet()
+	app.RunFixtureTweet()
 
 	resp := Response{
 		StatusCode:      200,
@@ -38,6 +40,18 @@ func Handler(ctx context.Context) (Response, error) {
 	return resp, nil
 }
 
+func SQSHandler(ctx context.Context, sqsEvent events.SQSEvent) (Response, error) {
+
+}
+
 func main() {
+	handler, exists := os.LookupEnv("HANDLER")
+	if exists {
+		if handler == "SQS" {
+			lambda.Start(SQSHandler())
+		} else {
+			lambda.Start(Handler)
+		}
+	} 
 	lambda.Start(Handler)
 }
