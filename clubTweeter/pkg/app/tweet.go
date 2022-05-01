@@ -1,7 +1,6 @@
 package app
 
 import (
-	_ "embed"
 	"fmt"
 	"time"
 

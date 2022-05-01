@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/c-m-hunt/club-tweeter/pkg/app"
+	"github.com/c-m-hunt/club-tweeter/pkg/img"
 )
 
 type Response events.APIGatewayProxyResponse
@@ -26,7 +26,14 @@ func Handler(ctx context.Context) (Response, error) {
 	}
 	json.HTMLEscape(&buf, body)
 
-	app.RunFixtureTweet()
+	whichApp, exists := os.LookupEnv("APP")
+	if exists {
+		if whichApp == "FIX_TWEETER" {
+			app.RunFixtureTweet()
+		} else if whichApp == "SCORE_UPDATER" {
+			app.RunFixtureTweet()
+		}
+	}
 
 	resp := Response{
 		StatusCode:      200,
@@ -40,18 +47,25 @@ func Handler(ctx context.Context) (Response, error) {
 	return resp, nil
 }
 
-func SQSHandler(ctx context.Context, sqsEvent events.SQSEvent) (Response, error) {
-
-}
-
 func main() {
-	handler, exists := os.LookupEnv("HANDLER")
-	if exists {
-		if handler == "SQS" {
-			lambda.Start(SQSHandler())
-		} else {
-			lambda.Start(Handler)
-		}
-	} 
-	lambda.Start(Handler)
+	// lambda.Start(Handler)
+	background := "imgs/backgrounds/landscape.png"
+	foreground := "imgs/players/bat/43383.png"
+	sponsor := "imgs/ads/PaulRobinson_Logo_1.png"
+	output := "result.jpg"
+
+	opts := img.NewCreateLayeredImgOptions()
+	sponsorLayer := img.NewImgLayer(sponsor)
+	sponsorLayer.X = 30
+	sponsorLayer.Y = 30
+	sponsorLayer.Scale = 1.6
+	layers := img.ImgLayers{
+		img.NewImgLayer(foreground),
+		sponsorLayer,
+	}
+
+	err := img.CreateLayeredImg(background, layers, output, opts)
+	if err != nil {
+		panic(err)
+	}
 }
