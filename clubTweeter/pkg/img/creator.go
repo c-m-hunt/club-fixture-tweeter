@@ -1,13 +1,12 @@
 package img
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"image/jpeg"
-	"image/png"
 	"os"
 
+	"github.com/fogleman/gg"
 	"github.com/nfnt/resize"
 )
 
@@ -38,17 +37,11 @@ func NewImgLayer(image string) ImgLayer {
 }
 
 func CreateLayeredImg(background string, layers ImgLayers, output string, options CreateLayeredImgOptions) error {
-
-    imgBackFile,err := os.Open(background)
-	if err != nil {
-		return err
-	}
     
-	imgBack, err := png.Decode(imgBackFile)
+	imgBack, err := gg.LoadImage(background)
 	if err != nil {
 		return err
 	}
-    defer imgBackFile.Close()
 
     b := imgBack.Bounds()
     imgOut := image.NewRGBA(b)
@@ -61,19 +54,12 @@ func CreateLayeredImg(background string, layers ImgLayers, output string, option
 	defer imgOutFile.Close()
 
 	for _, layer := range layers {
-		imgLayerFile,err := os.Open(layer.Image)
+		imgLayer,err := gg.LoadImage(layer.Image)
 		if err != nil {
 			return err
 		}
-		imgLayer,err := png.Decode(imgLayerFile)
-		if err != nil {
-			return err
-		}
-		defer imgLayerFile.Close()
 
 		offset := image.Pt(layer.X, layer.Y)
-
-		fmt.Print(imgLayer.Bounds().Dx())
 
 		imgLayerResized := resize.Resize(
 			uint(float32(imgLayer.Bounds().Dx()) * layer.Scale), 
@@ -85,8 +71,6 @@ func CreateLayeredImg(background string, layers ImgLayers, output string, option
 		draw.Draw(imgOut, imgLayerResized.Bounds().Add(offset), imgLayerResized, image.ZP, draw.Over)
 	}
 
-
-	
 	jpeg.Encode(imgOutFile, imgOut, &jpeg.Options{jpeg.DefaultQuality})
 	return nil
 }
