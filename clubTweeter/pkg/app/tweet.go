@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/c-m-hunt/club-tweeter/pkg/config"
 	pc "github.com/c-m-hunt/club-tweeter/pkg/playcricket"
 	"github.com/c-m-hunt/club-tweeter/pkg/twitter"
 )
 
 func RunFixtureTweet() {
-	cfg := config.NewConfig()
 
 	c := pc.NewClient(cfg.PlayCricket.ClubID, cfg.PlayCricket.APIToken)
 	fixs := pc.ClubMatches(c.GetFixtures(pc.GetCurrentSeason()))
-	fixs.PopulateTwitter(cfg.TwitterMap)
+	fixs.PopulateTwitter(cfg.PlayCricketTwitterMap)
 
 	for i := 0; i < 8; i++ {
 		date := time.Now().Add(time.Duration(int(time.Hour) * 24 * i))

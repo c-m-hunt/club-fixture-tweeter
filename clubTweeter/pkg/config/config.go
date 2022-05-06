@@ -17,18 +17,31 @@ type TwitterAuth struct {
 	AccessSecret   string `yaml:"accessSecret"`
 }
 
+type S3Path struct {
+	Bucket string `yaml:"bucket"`
+	Key    string `yaml:"key"`
+}
+
+type ScoreImgs struct {
+	FiftyText string `yaml:"fiftyText"`
+	HundredText string `yaml:"hundredText"`
+	FiveWicketsText string `yaml:"fiveWktsText"`
+	CachePath S3Path `yaml:"cachePath"`
+}
+
 type Config struct {
 	PlayCricket struct {
 		ClubID   string   `yaml:"clubID"`
 		APIToken string   `yaml:"apiToken"`
 		Teams    []string `yaml:"teams"`
 	} `yaml:"playCricket"`
-	TwitterMap  map[string]string `yaml:"twitterMap"`
+	PlayCricketTwitterMap  map[string]string `yaml:"playCricketTwitterMap"`
 	TwitterAuth `yaml:"twitterAuth"`
 	Templates   struct {
 		Fixtures    string `yaml:"fixtures"`
 		FixtureLine string `yaml:"fixtureLine"`
 	} `yaml:"templates"`
+	ScoreImgs `yaml:"scoreImgs"`
 }
 
 func NewConfig() Config {

@@ -1,24 +1,15 @@
 package img
 
 import (
-	"image"
-	"image/draw"
-	"image/jpeg"
-	"os"
+	"image/color"
 
 	"github.com/fogleman/gg"
 	"github.com/nfnt/resize"
 )
 
-type CreateLayeredImgOptions struct {
-	OverlayX int
-	OverlayY int
-}
 
-func NewCreateLayeredImgOptions() CreateLayeredImgOptions {
-	return CreateLayeredImgOptions{
-		200, 200,
-	}
+type Layer interface {
+	AddLayerToContext(*gg.Context) error
 }
 
 type ImgLayer struct {
@@ -28,7 +19,51 @@ type ImgLayer struct {
 	Scale float32
 }
 
-type ImgLayers []ImgLayer
+func (l ImgLayer) AddLayerToContext(dc *gg.Context) error {
+	img, err := gg.LoadImage(l.Image)
+	if err != nil {
+		return err
+	}
+
+	imgResized := resize.Resize(
+		uint(float32(img.Bounds().Dx()) * l.Scale), 
+		uint(float32(img.Bounds().Dy())* l.Scale), 
+		img,
+		resize.Lanczos3,
+	)
+
+	dc.DrawImage(imgResized, l.X, l.Y)
+	return nil
+}
+
+type TextLayer struct {
+	Text string
+	X int
+	Y int
+	Color color.Color
+	Rotate float64
+	Size float64
+	Centered bool
+}
+
+func (l TextLayer) AddLayerToContext(dc *gg.Context) error {
+	font, _ := GetMangonelFont(l.Size)
+	dc.Push()
+	dc.Rotate(l.Rotate)
+	dc.SetFontFace(font)
+	dc.SetColor(color.White)
+	if l.Centered {
+		dc.DrawStringAnchored(l.Text, float64(l.X), float64(l.Y), 0.5, 0.5)
+	} else {
+		dc.DrawString(l.Text, float64(l.X), float64(l.Y))
+	}
+	
+	dc.Pop()
+	return nil
+}
+
+
+type Layers []Layer
 
 func NewImgLayer(image string) ImgLayer {
 	return ImgLayer{
@@ -36,41 +71,19 @@ func NewImgLayer(image string) ImgLayer {
 	}
 }
 
-func CreateLayeredImg(background string, layers ImgLayers, output string, options CreateLayeredImgOptions) error {
-    
+func CreateLayeredImg(background string, layers Layers, output string) error {
 	imgBack, err := gg.LoadImage(background)
 	if err != nil {
 		return err
 	}
 
-    b := imgBack.Bounds()
-    imgOut := image.NewRGBA(b)
-    draw.Draw(imgOut, b, imgBack, image.ZP, draw.Src)
+	dc := gg.NewContextForImage(imgBack)
 
-	imgOutFile,err := os.Create(output)
-	if err != nil {
-		return err
-	}
-	defer imgOutFile.Close()
+    dc.DrawImage(imgBack, 0, 0)
 
 	for _, layer := range layers {
-		imgLayer,err := gg.LoadImage(layer.Image)
-		if err != nil {
-			return err
-		}
-
-		offset := image.Pt(layer.X, layer.Y)
-
-		imgLayerResized := resize.Resize(
-			uint(float32(imgLayer.Bounds().Dx()) * layer.Scale), 
-			uint(float32(imgLayer.Bounds().Dy())* layer.Scale), 
-			imgLayer,
-			resize.Lanczos3,
-		)
-
-		draw.Draw(imgOut, imgLayerResized.Bounds().Add(offset), imgLayerResized, image.ZP, draw.Over)
+		layer.AddLayerToContext(dc)
 	}
 
-	jpeg.Encode(imgOutFile, imgOut, &jpeg.Options{jpeg.DefaultQuality})
-	return nil
+	return dc.SavePNG(output)
 }
