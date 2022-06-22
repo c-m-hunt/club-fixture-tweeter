@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/c-m-hunt/club-tweeter/pkg/app"
-	"github.com/c-m-hunt/club-tweeter/pkg/img"
 )
 
 type Response events.APIGatewayProxyResponse
@@ -29,9 +28,9 @@ func Handler(ctx context.Context) (Response, error) {
 	whichApp, exists := os.LookupEnv("APP")
 	if exists {
 		if whichApp == "FIX_TWEETER" {
-			app.RunFixtureTweet()
+			app.RunFixtureTweet(true)
 		} else if whichApp == "SCORE_UPDATER" {
-			app.RunFixtureTweet()
+			app.RunFixtureTweet(true)
 		}
 	}
 
@@ -49,23 +48,7 @@ func Handler(ctx context.Context) (Response, error) {
 
 func main() {
 	// lambda.Start(Handler)
-	background := "imgs/backgrounds/landscape.png"
-	foreground := "imgs/players/bat/43383.png"
-	sponsor := "imgs/ads/PaulRobinson_Logo_1.png"
-	output := "result.jpg"
-
-	opts := img.NewCreateLayeredImgOptions()
-	sponsorLayer := img.NewImgLayer(sponsor)
-	sponsorLayer.X = 30
-	sponsorLayer.Y = 30
-	sponsorLayer.Scale = 1.6
-	layers := img.ImgLayers{
-		img.NewImgLayer(foreground),
-		sponsorLayer,
-	}
-
-	err := img.CreateLayeredImg(background, layers, output, opts)
-	if err != nil {
-		panic(err)
-	}
+	se := app.ScoreEvent{1, app.BatFifty}
+	se.GenerateImage("imgs/out/result.jpg")
+	app.RunScoreTweet()
 }

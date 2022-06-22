@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	app.RunFixtureTweet()
+	app.RunFixtureTweet(false)
 }

@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"image/color"
 	"math"
+	"time"
 
 	"github.com/c-m-hunt/club-tweeter/pkg/config"
 	"github.com/c-m-hunt/club-tweeter/pkg/img"
@@ -26,8 +27,14 @@ func init() {
 
 func RunScoreTweet() error {
 	c := pc.NewClient(cfg.PlayCricket.ClubID, cfg.PlayCricket.APIToken)
-	_ = pc.ClubMatches(c.GetFixtures(pc.GetCurrentSeason()))
+	fixtures, err := c.GetFixtures(pc.GetCurrentSeason())
+	if err != nil {
+		return err
+	}
+	allClubMatches := pc.ClubMatches(fixtures)
+	todaysMatches := allClubMatches.FilterByDate(time.Date(2022, time.April, 23, 10, 10, 10, 0, time.Now().UTC().Location()), cfg.PlayCricket.Teams)
 
+	
 
 	return nil
 	// Get live fixtures
@@ -54,7 +61,7 @@ type ScoreEvent struct {
 
 func (se *ScoreEvent) GenerateImage(filePath string) error {
 	background := "imgs/backgrounds/landscape.png"
-	foreground := "imgs/players/ball/1417520.png"
+	foreground := "imgs/players/bat/3472322.png"
 	sponsor := "imgs/ads/PaulRobinson_Logo_1.png"
 
 	sponsorLayer := img.NewImgLayer(sponsor)
@@ -82,7 +89,7 @@ func (se *ScoreEvent) GenerateImage(filePath string) error {
 	layers := img.Layers{
 		foregroundLayer,
 		sponsorLayer,
-		img.TextLayer{"A Wainwright", 50, imgBack.Bounds().Dy() - 50, color.White, 0, 150, false},
+		img.TextLayer{"Joe Sibbons", 50, imgBack.Bounds().Dy() - 50, color.White, 0, 150, false},
 		img.TextLayer{
 			scoreText,
 			imgBack.Bounds().Dy() / 2,

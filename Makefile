@@ -10,7 +10,11 @@ clean:
 
 deploy:
 	make build
+	export AWS_PROFILE=personal
 	sls deploy --verbose --stage=prod
 
 remove:
 	sls remove --verbose --stage=prod
+
+sync_files:
+	AWS_PROFILE=personal aws s3 sync ./clubTweeter/imgs s3://sosemtcc/imgs
